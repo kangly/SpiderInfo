@@ -1,0 +1,59 @@
+
+<style type="text/css">
+    .search_add_group_user{text-align: center;}
+    .search_add_group_user input{margin-top: 10px;}
+</style>
+
+<div class="search_add_group_user">
+    <input type="text" id="search_user" class="span2" placeholder="输入用户名称">
+    <input type="hidden" id="user_group_id" value="{$group_id}">
+    <a class="btn btn-success" onclick="save_group_user()">添加</a>
+</div>
+
+<script type="text/javascript">
+
+    $(function(){
+        _bind_typeahead_user('search_user', function(user){
+            return user.username;
+        });
+    });
+
+    function save_group_user(){
+        var user_group_id = $('#user_group_id').val();
+        if(user_group_id==''){
+            tip_error('用户组不存在',5);
+            return;
+        }
+
+        var user_id = $('#search_user').attr('user_id');
+        var user_name = $('#search_user').val();
+        if(!user_id || !user_name){
+            tip_error('用户不存在',5);
+            return;
+        }
+
+        if(op_start()){
+            $.ajax({
+                dataType: "text",
+                type: "POST",
+                url: "{:U('home/setting/save_group_user')}",
+                data: {
+                    user_id:user_id,
+                    group_id:user_group_id
+                },
+                success: function (res){
+                    if(res=='success'){
+                        tip_success('添加成功');
+                    }else if(res=='exist'){
+                        tip_error('用户已属于本组',5);
+                    }else{
+                        tip_error('添加失败',5);
+                    }
+                }
+            }).always(function(){
+                op_end();
+            });
+        }
+    }
+
+</script>

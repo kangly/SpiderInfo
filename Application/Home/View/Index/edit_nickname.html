@@ -1,0 +1,64 @@
+
+<form class="form-horizontal">
+
+    <div class="control-group">
+        <label class="control-label">密码:</label>
+        <div class="controls">
+            <input class="span2" id="password" type="text" value="">
+            <small>需要验证密码</small>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">新昵称:</label>
+        <div class="controls">
+            <input class="span2" id="nickname" type="text" value="{$user.nickname}">
+        </div>
+    </div>
+
+</form>
+
+<a class="btn btn-success" onclick="save_nickname()">保存</a>
+
+<script type="text/javascript">
+
+    function save_nickname(){
+
+        var password = $.trim($('#password').val());
+        if(password==''){
+            tip_error('密码不能为空',5);
+            return;
+        }
+
+        var nickname = $.trim($('#nickname').val());
+        if(nickname==''){
+            tip_error('昵称不能为空',5);
+            return;
+        }
+
+        if(op_start()){
+            $.ajax({
+                dataType: "text",
+                type: "POST",
+                url: "{:U('home/index/save_nickname')}",
+                data: {
+                    password:password,
+                    nickname:nickname
+                },
+                success: function (res){
+                    if(res=='success'){
+                        tip_success('保存成功');
+                        _tab_close_current_and_reload_opener();
+                    }else if(res){
+                        tip_error(res,5);
+                    }else{
+                        tip_error('保存失败',5);
+                    }
+                }
+            }).always(function(){
+                op_end();
+            });
+        }
+    }
+
+</script>

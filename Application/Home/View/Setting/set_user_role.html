@@ -1,0 +1,63 @@
+
+<form action="{:U('home/setting/save_user_role')}" method="post" id="form_save_user_role" class="form-horizontal">
+
+    <div class="control-group">
+        <label class="control-label">用户角色:</label>
+        <div class="controls" id="target_div">
+            <volist name="user_roles" id="vo">
+                <input id="title_{$vo.id}" name="title" value="{$vo.id}" class="check_obj target_class" type="checkbox">
+                <label for="title_{$vo.id}" class="check_label">{$vo.title}</label>
+            </volist>
+        </div>
+    </div>
+
+    <input type="hidden" name="id" value="{$id}">
+    <input type="hidden" id="target_id" name="target_id" value="{$roles}">
+
+</form>
+
+<div class="form-actions pop_win_buttons">
+    <a class="btn btn-success" onclick="save_user_role()">保存</a>
+</div>
+
+<script type="text/javascript">
+
+    $(function(){
+
+        var target_id = $('#target_id').val();
+        target_id = ',' + target_id + ',';
+
+        $('#target_div .target_class').each(function(){
+            var val = $(this).val();
+            var key = ',' + val + ',';
+            if(target_id.indexOf(key)!=-1){
+                $(this).prop('checked',true);
+            }else{
+                $(this).prop('checked',false);
+            }
+        });
+    });
+
+    function save_user_role()
+    {
+        var target_id = '';
+        $('#form_save_user_role input[name="title"]:checked').each(function(){
+            var id = $(this).val();
+            target_id = target_id + ',' + id;
+        });
+
+        if(target_id==''){
+            tip_error('请选择用户角色',5);
+            return;
+        }else{
+            $('#target_id').val(target_id.substring(1));
+        }
+
+        submittheform('form_save_user_role','',function(data){
+            if(data>0){
+                _close_moveable_popup();
+            }
+        });
+    }
+
+</script>

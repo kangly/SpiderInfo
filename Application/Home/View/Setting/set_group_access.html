@@ -1,0 +1,79 @@
+<extend name="Public:base" />
+<block name="path_title">设置用户组权限</block>
+<block name="container">
+
+    <script type="text/javascript">
+
+        $(function(){
+            var target_id = $('#target_id').val();
+            target_id = ',' + target_id + ',';
+            $('#target_div .target_class').each(function(){
+                var val = $(this).val();
+                var key = ',' + val + ',';
+                if(target_id.indexOf(key)!=-1){
+                    $(this).prop('checked',true);
+                }else{
+                    $(this).prop('checked',false);
+                }
+            });
+        });
+
+        function save_group_access(){
+            var target_id = '';
+            $('#form_group_access input[name="rules"]:checked').each(function(){
+                var id = $(this).val();
+                target_id = target_id + ',' + id;
+            });
+
+            if(target_id==''){
+                tip_error('请选择用户组权限',5);
+                return;
+            }else{
+                $('#target_id').val(target_id.substring(1));
+            }
+
+            submittheform('form_group_access','',function(data){
+                if(data>0){
+                    location.href = "{:U('home/setting/rule')}";
+                }
+            });
+        }
+    </script>
+
+    <div class="widget-box">
+        <div class="widget-content nopadding tabbable addable_tab" id="tab_content">
+            <div class="widget-title">
+                <ul id="myTab" class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#tab1">设置用户组权限</a></li>
+                </ul>
+            </div>
+
+            <div id="tab_content_page" class="widget-content tab-content">
+                <div id="tab1" class="tab-pane active">
+                    <form action="{:U('home/setting/save_group_access')}" method="post" id="form_group_access" class="form-horizontal">
+
+                        <div class="control-group">
+                            <label class="control-label">权限列表 :</label>
+                            <div class="controls" id="target_div">
+                                <volist name="all_rules" id="vo">
+                                    <div>
+                                        {$vo.limiter}
+                                        <input id="group_access_{$vo.id}" name="rules" value="{$vo.id}" class="check_obj target_class" type="checkbox">
+                                        <label for="group_access_{$vo.id}" class="check_label">{$vo.title}</label>
+                                    </div>
+                                </volist>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="target_id" name="target_id" value="{$rule.rules}"/>
+                        <input type="hidden" id="group_id" name="id" value="{$rule.id}">
+                    </form>
+
+                    <a onclick="save_group_access()" class="btn btn-success">保存</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</block>

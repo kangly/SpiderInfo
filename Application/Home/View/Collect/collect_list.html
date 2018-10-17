@@ -1,0 +1,103 @@
+
+<div class="search_div">
+    <select id="listarea1" name="listarea1" onchange="loadArea('list')">
+        <option value="">请选择省市</option>
+    </select>
+    <select id="listarea2" name="listarea2"></select>
+    <input type="hidden" id="listarea1_name" name="listarea1_name" value="{$Think.get.area1}{$Think.post.area1}" />
+    <input type="hidden" id="listarea2_name" name="listarea2_name" value="{$Think.get.area2}{$Think.post.area2}" />
+
+    <input type="text" id="keyword" class="span3" value="{$Think.get.keyword}{$Think.post.keyword}" placeholder="标题">
+
+    <select id="curl_source" name="curl_source" onchange="load_collect()">
+        <option value="0">采集来源</option>
+        <volist name="task_list" id="vo">
+            <option value="{$vo.pid}" <eq name="vo.pid" value="$pid">selected</eq>>{$vo.title}</option>
+        </volist>
+    </select>
+
+    <a class="btn btn-success" onclick="load_collect()">搜索</a>
+</div>
+
+<table class="table table-bordered table-striped table-condensed list">
+    <thead>
+    <tr>
+        <th>标题</th>
+        <th width="90">省市</th>
+        <lt name="pid" value="23">
+            <th width="90">联系人</th>
+            <th width="110">联系人电话</th>
+        </lt>
+        <th width="100">创建时间</th>
+    </tr>
+    </thead>
+    <tbody>
+    <volist name="data_list" id="vo">
+        <tr id="data_list_{$vo.id}">
+            <td>
+                {$vo.title}
+                <small><a class="btn-link" href="{$vo.url}" target="_blank">原</a></small>
+              	<small><a class="btn-link" onclick="edit_collect('{$vo.id}','{$vo.module_id}')">查看</a></small>
+            </td>
+            <td>{$vo.city}</td>
+            <lt name="pid" value="23">
+            <td>{$vo.contact}</td>
+            <td>
+                <if condition="$vo.phone neq ''">
+                    {$vo.phone}
+                    <br>
+                    <small><a class="btn-link" href="https://www.baidu.com/s?wd={$vo.phone}" target="_blank">百度</a></small>
+                    <small><a class="btn-link" href="https://www.so.com/s?q={$vo.phone}" target="_blank">360</a></small>
+                    <small><a class="btn-link" href="http://www.shebeishang168.com/zccz/search.php?kw={$vo.phone}" target="_blank">资产处置</a></small>
+                    <elseif condition="$vo.phone_img neq ''"/>
+                    <img src="{$vo.phone_img}" style="vertical-align:middle;height: 14px;" title="联系人电话图片">
+                    <br>
+                    <small><a class="btn-link" href="https://www.baidu.com/s?wd={$vo.phone}" target="_blank">百度</a></small>
+                    <small><a class="btn-link" href="https://www.so.com/s?q={$vo.phone}" target="_blank">360</a></small>
+                    <small><a class="btn-link" href="http://www.shebeishang168.com/zccz/search.php?kw={$vo.phone}" target="_blank">资产处置</a></small>
+                    <else />
+                </if>
+            </td>
+            </lt>
+            <td><small>{$vo.create_time}</small></td>
+        </tr>
+    </volist>
+    </tbody>
+</table>
+
+<div class="pagination in_tab">{$page}</div>
+
+<script type="text/javascript">
+
+    $(function(){
+        loadKeyData(0,'listarea1',$('#listarea1_name').val());
+        _add_enter_event('keyword',load_collect);
+    });
+
+    function load_collect(){
+        var data = {};
+        data.keyword = _trim_assign($('#keyword'));
+        data.pid = $('#curl_source').val();
+        var url = "{:U('home/collect/collect_list')}";
+        var area1 = $('#listarea1').val();
+        if(area1!='' && area1!=null){
+            data.area1 = area1;
+        }
+        var area2 = $('#listarea2').val();
+        if(area2!='' && area2!=null){
+            data.area2 = area2;
+        }
+        _p_a_load(url,'tab1',false,data);
+    }
+  
+  	function edit_collect(id,mid){
+        var data = {};
+        data.id = id;
+        data.mid = mid;
+        var url = "{:U('home/collect/edit_collect')}";
+        _add_moveable_popup('collect_moveable','查看信息',url,data,{width:1000,height:600,top:50,right:150},{finishwork:function(){
+            load_collect();
+        }});
+    }
+
+</script>

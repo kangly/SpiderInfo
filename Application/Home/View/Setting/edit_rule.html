@@ -1,0 +1,99 @@
+
+<form action="{:U('home/setting/save_rule')}" method="post" id="form_save_rule" class="form-horizontal">
+
+    <div class="control-group">
+        <label class="control-label">父级权限:</label>
+        <div class="controls">
+            <select name="pid" class="span3">
+                <option value="0">一级权限</option>
+                <volist name="menu_rules" id="vo">
+                    <option value="{$vo.id}" <eq name="vo.id" value="$edit.pid">selected</eq>>
+                        <neq name="vo.limiter" value="">{$vo.limiter}└─</neq> {$vo.title}
+                    </option>
+                </volist>
+            </select>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">规则标识:</label>
+        <div class="controls">
+            <input class="span2" id="rule_name" name="name" type="text" value="{$edit.name}">
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">规则名称:</label>
+        <div class="controls">
+            <input class="span2" id="rule_title" name="title" type="text" value="{$edit.title}">
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">状态:</label>
+        <div class="controls">
+            <input id="status_1" name="status" value="1" class="check_obj" type="radio" <neq name="edit.status" value="0">checked</neq>>
+            <label for="status_1" class="check_label">正常</label>
+            <input id="status_0" name="status" value="0" class="check_obj" type="radio" <eq name="edit.status" value="0">checked</eq>>
+            <label for="status_0" class="check_label">禁用</label>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">图标class:</label>
+        <div class="controls">
+            <input class="span2" id="rule_icon" name="icon" type="text" value="{$edit.icon}">
+            <small>例如:icon-cog</small>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">排序:</label>
+        <div class="controls">
+            <input class="span2" id="rule_order_num" name="order_num" type="text" value="{$edit.order_num}">
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">菜单:</label>
+        <div class="controls">
+            <input id="is_menu_1" name="is_menu" value="1" class="check_obj" type="radio" <eq name="edit.is_menu" value="1">checked</eq>>
+            <label for="is_menu_1" class="check_label">是</label>
+            <input id="is_menu_0" name="is_menu" value="0" class="check_obj" type="radio" <neq name="edit.is_menu" value="1">checked</neq>>
+            <label for="is_menu_0" class="check_label">否</label>
+        </div>
+    </div>
+
+    <input type="hidden" name="id" value="{$edit.id}">
+
+</form>
+
+<div class="form-actions pop_win_buttons">
+    <a class="btn btn-success" onclick="save_rule()">保存</a>
+</div>
+
+<script type="text/javascript">
+
+    function save_rule(){
+
+        if(_trim_assign($('#rule_name'))==''){
+            tip_error('规则标识不能为空',5);
+            return;
+        }
+
+        if(_trim_assign($('#rule_title'))==''){
+            tip_error('规则名称不能为空',5);
+            return;
+        }
+
+        submittheform('form_save_rule','',function(data){
+            if(data>0){
+                if(_ma_pop_callback['{$Think.post.moveable_pop_mark}']){
+                    _ma_pop_callback['{$Think.post.moveable_pop_mark}']();
+                }
+                _close_moveable_popup();
+            }
+        });
+    }
+
+</script>

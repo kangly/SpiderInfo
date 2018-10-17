@@ -1,0 +1,124 @@
+
+<style type="text/css">
+    #form-collect .control-label{width: 100px;}
+    #form-collect .controls {margin-left: 120px;}
+    .img_data{width: 100px;height: 100px;}
+    .img_data img{width: 100px;height: 100px;}
+</style>
+
+<form class="form-horizontal" id="form-collect">
+
+    <div class="control-group">
+        <label class="control-label"><span class="red1">*</span>标题:</label>
+        <div class="controls" style="margin-top: 2px;">{$edit.title}</div>
+    </div>
+
+    <neq name="mid" value="27">
+        <div class="control-group">
+            <label class="control-label"><span class="red1">*</span>联系人:</label>
+            <div class="controls">
+                <input class="span2" id="contact" type="text" value="{$edit.contact}">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label"><span class="red1">*</span>联系人电话:</label>
+            <div class="controls">
+                <input class="span2" id="phone" type="text" value="{$edit.phone}">
+                <neq name="edit.phone_img" value="">
+                    <small class="red1">参考: </small><img src="{$edit.phone_img}" style="vertical-align:middle;height: 14px;" title="联系人电话图片">
+                </neq>
+            </div>
+        </div>
+    </neq>
+
+    <div class="control-group">
+        <label class="control-label">地区:</label>
+        <div class="controls">
+            <select class="span2" id="area1" name="area1" onchange="loadArea()">
+                <option value="">请选择</option>
+            </select>
+            <select class="span2" id="area2" name="area2"></select>
+            <input type="hidden" id="area1_name" name="area1_name" value="{$edit.area1}" />
+            <input type="hidden" id="area2_name" name="area2_name" value="{$edit.area2}" />
+            <neq name="edit.contact_address" value="">
+                <small class="red1">参考: {$edit.contact_address}</small>
+            </neq>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label"><span class="red1">*</span>描述:</label>
+        <div class="controls">
+            <!-- 加载编辑器的容器 -->
+            <script id="collect_content" type="text/plain">{$edit.content}</script>
+            <script type="text/javascript">
+                var ue_collect_content = _gen_ueditor('collect_content','800','400',{allowDivTransToP:false,autoHeightEnabled:true,minFrameHeight:400});
+            </script>
+        </div>
+    </div>
+
+    <eq name="mid" value="27">
+        <div class="control-group">
+            <label class="control-label">图片:</label>
+            <div class="controls">
+                <small class="red1">如果存在图片,会在此处显示,点击可查看</small>
+                <table>
+                    <tr>
+                    <volist name="img_data" id="vo">
+                        <td>
+                            <div class="img_data">
+                                <a href="__ROOT__{$vo.img}" target="_blank" title="点击查看"><img src="__ROOT__{$vo.img}"></a>
+                            </div>
+                        </td>
+                        <php>if($i%6 == 0){echo '</tr>';}</php>
+                    </volist>
+                </table>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">附件:</label>
+            <div class="controls">
+                <small class="red1">如果存在附件,会在此处显示,点击可下载或查看</small>
+                <table>
+                    <volist name="file_data" id="vo">
+                        <tr>
+                            <td>
+                                <a href="__ROOT__{$vo.url}" target="_blank" title="点击下载或查看">{$vo.name}</a>
+                            </td>
+                        </tr>
+                    </volist>
+                </table>
+            </div>
+        </div>
+        <else/>
+        <div class="control-group">
+            <label class="control-label">图片:</label>
+            <div class="controls">
+                <small class="red1">如果存在图片,仅采集前三张图片并在此处显示,点击可查看,转化时可修改</small>
+                <table>
+                    <tr>
+                        <volist name="img_data" id="vo">
+                            <td>
+                                <div class="img_data">
+                                    <a href="__ROOT__{$vo.img}" target="_blank" title="点击查看"><img src="__ROOT__{$vo.img}"></a>
+                                </div>
+                            </td>
+                        </volist>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </eq>
+
+    <input type="hidden" id="collect_id" value="{$edit.id}">
+    <input type="hidden" id="collect_mid" value="{$mid}">
+
+</form>
+
+<script type="text/javascript">
+    $(function(){
+        loadKeyData(0,'area1',$('#area1_name').val());
+    });
+</script>

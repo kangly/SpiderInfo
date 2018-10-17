@@ -1,0 +1,61 @@
+
+<style type="text/css">
+    .form-horizontal.user_info_list .controls{margin-top: 5px;}
+    .user_info_btn{margin-bottom: 5px;}
+</style>
+
+<div class="user_info_btn">
+    <a class="btn btn-success btn-mini" onclick="edit_password()">修改密码</a>
+    <a class="btn btn-success btn-mini" onclick="edit_nickname()">修改昵称</a>
+</div>
+
+<form class="form-horizontal user_info_list">
+
+    <div class="control-group">
+        <label class="control-label">用户名:</label>
+        <div class="controls">
+            {$user.username}
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">昵称:</label>
+        <div class="controls">
+            {$user.nickname}
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">注册时间:</label>
+        <div class="controls">
+            {$user.register_time}
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">最后登录ip:</label>
+        <div class="controls">
+            {$user.last_login_ip}
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">最后登录时间:</label>
+        <div class="controls">
+            {$user.last_login_time}
+        </div>
+    </div>
+
+</form>
+
+<script type="text/javascript">
+
+    function edit_password(){
+        _tabShow('修改密码',"{:U('home/index/edit_password')}",'one_tab_password_only');
+    }
+
+    function edit_nickname(){
+        _tabShow('修改昵称',"{:U('home/index/edit_nickname')}",'one_tab_nickname_only');
+    }
+
+</script>

@@ -1,0 +1,101 @@
+
+<form id="form_save_group" class="form-horizontal">
+
+    <div class="control-group">
+        <label class="control-label">用户名:</label>
+        <div class="controls">
+            <input class="span2" id="username" name="username" type="text" value="{$edit.username}" <gt name="edit.id" value="0">disabled</gt>>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">用户昵称:</label>
+        <div class="controls">
+            <input class="span2" id="nickname" name="nickname" type="text" value="{$edit.nickname}">
+            <small>昵称为空,则为用户名</small>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label"><gt name="edit.id" value="0">新</gt>密码:</label>
+        <div class="controls">
+            <input class="span2" id="password" name="password" type="text" value="">
+            <gt name="edit.id" value="0"><small>新密码为空,则不修改</small></gt>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">确认密码:</label>
+        <div class="controls">
+            <input class="span2" id="confirm_password" name="confirm_password" type="text" value="">
+        </div>
+    </div>
+
+    <input type="hidden" name="id" id="user_id" value="{$edit.id}">
+
+</form>
+
+<div class="form-actions pop_win_buttons">
+    <a class="btn btn-success" onclick="save_user()">保存</a>
+</div>
+
+<script type="text/javascript">
+
+    function save_user(){
+
+        var username = _trim_assign($('#username'));
+        if(username==''){
+            tip_error('用户名不能为空',5);
+            return;
+        }
+
+        var password = _trim_assign($('#password'));
+        var confirm_password = _trim_assign($('#confirm_password'));
+
+        var user_id = $('#user_id').val();
+        if(user_id)
+        {
+            if(password != '' && confirm_password == ''){
+                tip_error('确认密码不能为空!');
+                return;
+            }
+        }
+        else
+        {
+            if(password == ''){
+                tip_error('密码不能为空!');
+                return;
+            }
+
+            if(confirm_password == ''){
+                tip_error('确认密码不能为空!');
+                return;
+            }
+        }
+
+        $.ajax({
+            dataType: "text",
+            type: "POST",
+            url: "{:U('home/setting/save_user')}",
+            data: {
+                user_id:user_id,
+                username:username,
+                nickname:_trim_assign($('#nickname')),
+                password:password,
+                confirm_password:confirm_password
+            },
+            success: function (ret){
+                if(ret=='success'){
+                    tip_success('操作成功');
+                    if(_ma_pop_callback['{$Think.post.moveable_pop_mark}']){
+                        _ma_pop_callback['{$Think.post.moveable_pop_mark}']();
+                        _close_moveable_popup();
+                    }
+                }else{
+                    tip_error(ret);
+                }
+            }
+        });
+    }
+
+</script>

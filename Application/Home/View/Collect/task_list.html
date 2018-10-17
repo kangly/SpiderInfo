@@ -1,0 +1,94 @@
+
+<div class="task_list">
+    <div class="alert">
+        <ul class="unstyled">
+            <li>此版本暂时不支持断点采集</li>
+            <li>本地需要和服务器通信,由于网络或其他原因可能导致数据上传失败</li>
+            <li>以下形式会导致采集自动停止</li>
+            <li>
+                <ul>
+                    <li>网络故障</li>
+                    <li>电脑待机或关机</li>
+                    <li>采集源页面布局改变</li>
+                    <li>采集命中防采集,ip被封</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <volist name="task" id="vo">
+      	<if condition="($vo.pid neq 1) AND ($vo.pid neq 14) AND ($vo.pid neq 15) AND ($vo.pid neq 22)">
+
+		</if>
+        <div>
+            <label class="ib">{$vo.title}</label>
+            <a data-title="{$vo.title}" data-pid="{$vo.pid}" data-file="{$vo.file}" data-state="{$vo.state}" class="badge <eq name='vo.state' value='1'>badge-info</eq> start_task start_task_{$vo.pid}">开始</a>
+            <a data-title="{$vo.title}" data-pid="{$vo.pid}" data-file="{$vo.file}" data-state="{$vo.state}" class="badge <neq name='vo.state' value='1'>badge-info</neq> end_task end_task_{$vo.pid}">结束</a>
+        </div>
+    </volist>
+</div>
+
+<script type="text/javascript">
+
+    $('.task_list .start_task.badge').click(function(){
+        var task_state = $(this).attr('data-state');
+        var task_title = $(this).attr('data-title');
+        var task_pid = $(this).attr('data-pid');
+      	var task_file = $(this).attr('data-file');
+        if(task_state==1){
+            tip_error(task_title+'采集任务已开始,请勿重复操作!',5);
+            return false;
+        }else{
+            $(this).attr('data-state',1);
+            var end_task = $('.task_list .end_task_'+task_pid+'.badge-info');
+            end_task.attr('data-state',1);
+            end_task.removeClass('badge-info');
+            $(this).addClass('badge-info');
+            start_task(task_pid,task_title,task_file);
+        }
+    });
+
+    function start_task(pid,title,task_file){
+        $.ajax({
+            dataType:"text",
+            type: "GET",
+            url: "{:U('home/collect/start_task')}",
+            data: {pid:pid,file:task_file},
+            success: function(ret){
+                if(ret=='success'){
+                    tip_success(title+'采集任务已开始!');
+                }
+            }
+        });
+    }
+
+    $('.task_list .end_task.badge').click(function(){
+        var task_state = $(this).attr('data-state');
+        var task_title = $(this).attr('data-title');
+        if(task_state==0){
+            tip_error(task_title+'采集任务已结束,请勿重复操作!',5);
+        }else{
+            var task_pid = $(this).attr('data-pid');
+            $(this).attr('data-state',0);
+            var start_task = $('.task_list .start_task_'+task_pid+'.badge-info');
+            start_task.attr('data-state',0);
+            start_task.removeClass('badge-info');
+            $(this).addClass('badge-info');
+            end_task(task_pid,task_title);
+        }
+    });
+
+    function end_task(pid,title){
+        $.ajax({
+            dataType:"text",
+            type: "GET",
+            url: "{:U('home/collect/end_task')}",
+            data: {pid:pid},
+            success: function(ret){
+                if(ret=='success'){
+                    tip_success(title+'采集任务已结束!');
+                }
+            }
+        });
+    }
+
+</script>

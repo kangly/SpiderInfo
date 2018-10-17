@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>二手设备共赢网数据采集任务后台管理</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/2.3.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/3.0.2/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/css/merge.sundry.css" />
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bootcss.com/draggabilly/2.1.0/draggabilly.pkgd.min.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/js/jquery.gritter.min.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/js/common.js"></script>
+    <script type="text/javascript" charset="utf-8" src="__PUBLIC__/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="__PUBLIC__/ueditor/ueditor.all.js"> </script>
+    <script type="text/javascript" charset="utf-8" src="__PUBLIC__/ueditor/lang/zh-cn/zh-cn.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $('#sidebar li').click(function(){
+                $('#sidebar li').removeClass('active');
+                $(this).addClass('active');
+            });
+            var current_url = location.href;
+            $('#sidebar li a').each(function(){
+                var menu_url = $(this).attr('href');
+                if(current_url.indexOf(menu_url)!=-1){
+                    var actmenu = $(this).parent();
+                    if (actmenu.parent().parent().hasClass('submenu')){
+                        actmenu.parent().parent().addClass('open active');
+                        actmenu.addClass('active');
+                    }else{
+                        actmenu.addClass('active');
+                    }
+                }
+            });
+            $('#open_new_win').attr('href',location.href);
+            load_user_list();
+        });
+
+        var _url = '__URL__';
+        var sformback = function(url){
+            if(url)
+                setTimeout("location.href = '"+ url + "'", 500);
+            else
+                setTimeout("location.href = '"+ _url + "'", 500);
+        };
+
+        var _base_user_id_arr = new Array();
+        var _base_username_arr = new Array();
+        var _base_user_info_arr = new Object();
+        function load_user_list(){
+            $.ajax({
+                url: "{:U('home/index/load_user')}",
+                type: 'get',
+                dataType: 'json',
+                data: {},
+                success: function (json) {
+                    for (var i in json) {
+                        _base_username_arr.push(json[i]['username']);
+                        _base_user_id_arr[json[i]['username']] = json[i]['id'];
+                        _base_user_info_arr[json[i]['id']] = json[i];
+                    }
+                }
+            });
+        }
+
+        function _bind_typeahead_user(id,aftercallback){
+            var obj = $('#'+id);
+            obj.typeahead({
+                source:_base_username_arr,
+                items:10,
+                minLength:1,
+                updater: function (item) {
+                    obj.attr('user_id',_base_user_id_arr[item]);
+                    obj.attr('username',item);
+                    obj.val(_base_user_info_arr[_base_user_id_arr[item]]);
+                    if(aftercallback){
+                        var ret = aftercallback(_base_user_info_arr[_base_user_id_arr[item]]);
+                        if(ret!=null && ret!=undefined){
+                            return ret;
+                        }else{
+                            return item;
+                        }
+                    }else{
+                        return item;
+                    }
+                }
+            });
+            obj.blur(function(event){
+                var admin_name = $(this).val();
+                if(admin_name!=''){
+                    var admin_id = _base_user_id_arr[admin_name];
+                    if(isNaN(admin_id)){
+                        $(this).attr('user_id','');
+                        $(this).attr('username','');
+                        $(this).val('');
+                    }
+                }else{
+                    $(this).attr('user_id','');
+                    $(this).attr('username','');
+                }
+            });
+        }
+
+        var _ma_pop_idx = 1;
+        var _ma_pop_callback = new Object();
+        var _ma_pop_callback_beforeclose = new Object();
+
+        /**
+         * 弹框显示内容
+         * @param ma_mark 弹框标识（非id），相同标识只弹出一个窗口
+         * @param title 窗口标题
+         * @param url 加载内容url，优先使用url再使用content
+         * @param content 窗口显示内容，当url有效时，可作为提交参数（数组格式)
+         * @param position 位置信息数组，可设置width,height,left/right,top/bottom
+         * @param callback 回调函数，可设置 afterinit,beforeclose(点击右上角关闭时),finishwork(在显示内容内根据自定义情况执行)
+         * @private
+         */
+        function _add_moveable_popup(ma_mark, title,url,content,position,callback){
+            _show_top_loading();
+
+            //此判断无法处理并发情况，暂时不深入处理
+            if(ma_mark && $('.moveable_popup_win[identity="'+ma_mark+'"]').length>0){
+                //return;
+                //改为关闭之前的
+                _close_moveable_popup(ma_mark);
+            }
+
+            var mapop = $('<div class="moveable_popup_win any_focus_pop my_focus_pop"><div class="title_bar"></div><div class="close_btn icon-remove" ma_mark="'+ma_mark+'"></div><div class="content_here"></div><div class="button_here"></div></div>');
+            var ma_id = 'ma_pop_'+_ma_pop_idx;
+            mapop.attr('id',ma_id);
+            mapop.attr('idx',_ma_pop_idx);
+
+            if(!ma_mark || ma_mark==''){
+                ma_mark = ma_id;
+            }
+
+            if(ma_mark){
+                mapop.attr('identity',ma_mark);
+            }
+
+            $('.my_focus_pop').removeClass('my_focus_pop');
+            $('#content').append(mapop);
+
+            var content_obj = mapop.find('.content_here:first');
+            var ma_content_id = 'ma_pop_content_'+_ma_pop_idx;
+            content_obj.attr('id',ma_content_id);
+            _ma_pop_idx ++;
+
+            var titlebar = mapop.find('.title_bar:first');
+            titlebar.html(title);
+
+            if(!callback)
+            {
+                callback = {};
+                _ma_pop_callback[ma_mark] = null;
+                _ma_pop_callback_beforeclose[ma_mark] = null;
+            }
+            else
+            {
+                if(callback.finishwork){
+                    _ma_pop_callback[ma_mark] = callback.finishwork;
+                }
+
+                if(callback.beforeclose) {
+                    _ma_pop_callback_beforeclose[ma_mark] = callback.beforeclose;
+                }
+            }
+
+            mapop.resizable();
+            mapop.delegate('.close_btn','click',function(){
+                _close_moveable_popup($(this).attr('ma_mark'));
+            });
+
+            var mp_data = {};
+            mp_data.moveable_pop_mark = ma_mark;
+
+            if(url)
+            {
+                mp_data = _pad_mergeJsonObject(mp_data,content);
+                _pad_all_loadPage(url,ma_content_id,true,mp_data,function(){
+                    _ma_check_button(mapop);
+                    mapop.show();
+                    _reposition_moveable_pop(mapop,position);
+                    if(callback.afterinit){
+                        callback.afterinit(ma_id,ma_content_id);
+                    }
+                    _hide_top_loading();
+                });
+            }
+            else
+            {
+                content_obj.html(content);
+                _reposition_moveable_pop(mapop,position);
+                _ma_check_button(mapop);
+                mapop.show();
+                if(callback.afterinit){
+                    callback.afterinit(ma_id,ma_content_id);
+                }
+                _hide_top_loading();
+            }
+
+            _mp_last_focus_shift_time_millsec = new Date().getTime();
+
+            mapop.draggabilly({
+                handle: '.title_bar'
+            });
+        }
+
+        function _ma_check_button(mapop){
+            var button_old = mapop.find('.pop_win_buttons:first');
+            var button_new = mapop.find('.button_here:first');
+            var fixed_buttons = button_new.find('.ma_fixed_button');
+            var fixed_btn_group = $('<span class="ma_fixed_button_group"></span>');
+            fixed_buttons.each(function(){
+                fixed_btn_group.append($(this));
+            });
+
+            var close_btn = $('<a class="btn close_btn">关闭</a>');
+            close_btn.attr('ma_mark', mapop.attr('identity'));
+            if(button_old.length>0){
+                button_new.html('');
+                button_new.append(fixed_btn_group);
+                button_new.append(button_old.html());
+                button_new.append(close_btn);
+                button_old.remove();
+            }else{
+                //默认添加关闭按键
+                button_new.html(close_btn);
+                button_new.prepend(fixed_btn_group);
+            }
+        }
+
+        function _reload_moveable_pop(ma_mark, more_parems, title){
+            if(!title){
+                title = '';
+            }
+            if(ma_mark && $('.moveable_popup_win[identity="'+ma_mark+'"]').length>0){
+                _pad_all_reloadPage($('.moveable_popup_win[identity="'+ma_mark+'"]').find('.content_here:first').attr('id'),more_parems, function(){
+                    _ma_check_button($('.moveable_popup_win[identity="'+ma_mark+'"]'));
+                });
+            }
+        }
+
+        function _find_moveable_pop_by_ma_mark(ma_mark){
+            return $('.moveable_popup_win[identity="'+ma_mark+'"]');
+        }
+
+        function _reposition_moveable_pop(mapop,position){
+            if(position){
+                if(position.width>0){
+                    position.width = position.width + 30;
+                    mapop.css('width',position.width);
+                }
+
+                var p_height = position.height;
+                if(isNaN(p_height))
+                {
+                    p_height = 0;
+                }
+                if(position.auto_height)
+                {
+                    var content_container = mapop.find('.content_here:first');
+                    var content_height = content_container[0].scrollHeight;
+
+                    if(!isNaN(content_height))
+                    {
+                        if(p_height>content_height)
+                        {
+                            p_height = content_height + 80;
+                        }
+                        if(p_height<230)
+                        {
+                            p_height = 230;
+                        }
+                    }
+                    mapop.css('height', p_height);
+                }
+                else
+                {
+                    mapop.css('height', p_height+50);
+                }
+
+                if(!isNaN(position.left)){
+                    mapop.css('left',position.left);
+                }else if(!isNaN(position.right)){
+                    var width = mapop.outerWidth();
+                    var win_width = $(document).innerWidth();
+                    var left = win_width - width - position.right;
+                    mapop.css('left',left);
+                }
+
+                if(!isNaN(position.top)){
+                    mapop.css('top',position.top);
+                }else if(!isNaN(position.bottom)){
+                    var height = mapop.outerHeight();
+                    var win_height = $(window).innerHeight();
+                    var top = win_height - height - position.bottom;
+                    if(top<0){
+                        top = 0;
+                    }
+                    mapop.css('top',top);
+                }
+            }
+        }
+
+        function _run_moveable_callback_finishwork(ma_mark, params){
+            if(ma_mark && $('.moveable_popup_win[identity="'+ma_mark+'"]').length>0){
+                if(_ma_pop_callback[ma_mark]){
+                    _ma_pop_callback[ma_mark](params);
+                }
+            }
+        }
+
+        function _close_moveable_popup(ma_mark){
+            if(_ma_pop_callback_beforeclose[ma_mark]){
+                _ma_pop_callback_beforeclose[ma_mark](ma_mark);
+            }
+            if(ma_mark && $('.moveable_popup_win[identity="'+ma_mark+'"]').length>0){
+                $('.moveable_popup_win[identity="'+ma_mark+'"]').remove();
+                _ma_pop_callback[ma_mark] = null;
+                _ma_pop_callback_beforeclose[ma_mark] = null;
+            }else{
+                $('.moveable_popup_win.my_focus_pop').remove();
+            }
+        }
+
+        _mp_last_focus_shift_time_millsec = 0;  //上次弹层时间
+        $(function(){
+            $(document).delegate('.any_focus_pop','click',function(){
+                var time_after = new Date().getTime() - _mp_last_focus_shift_time_millsec;
+                //限制在新弹层后2秒内部能切换焦点，否则有时从层点击弹新层会切换回来
+                if(time_after > 2000){
+                    $('.my_focus_pop').removeClass('my_focus_pop');
+                    $(this).addClass('my_focus_pop');
+                }
+            });
+        })
+    </script>
+</head>
+<body>
+
+<!--Header-part-->
+<div id="header">
+    <h1>二手设备共赢网数据采集任务后台管理</h1>
+</div>
+<!--close-Header-part-->
+
+<!--top-Header-menu-->
+<div id="user-nav" class="navbar navbar-inverse">
+    <ul class="nav">
+        <li class="dropdown" id="profile-messages" ><a title="" href="#" data-toggle="dropdown" data-target="#profile-messages" class="dropdown-toggle"><i class="icon icon-user"></i>  <span class="text"> 欢迎 {$authInfo.nickname}</span></a></li>
+        <li class=""><a title="" href="{:U('home/login/login_out')}"><i class="icon icon-share-alt"></i> <span class="text">退出系统</span></a></li>
+        <li class=""><a id="open_new_win" href="{:U('home/index/index')}" target="_blank"><span class="text">新窗</span></a></li>
+        <li id="top_loading_mark"><img src="__PUBLIC__/img/loading.gif" style="margin:11px;" /></li>
+    </ul>
+</div>
+<!--close-top-Header-menu-->
+
+<!--sidebar-menu-->
+<div id="sidebar"><a href="#" class="visible-phone"><i class="icon icon-home"></i>控制面板</a>
+    <ul>
+        <volist name="menu_data" id="vo">
+            <li class="<notempty name='vo.son'>submenu</notempty>">
+                <a href="<empty name='vo.son'>{:U($vo[name])}<else/>javascript:;</empty>"><i class="icon {$vo.icon}"></i>
+                    <span>{$vo.title}</span>
+                    <notempty name='vo.son'>
+                        <span class="label label-important">{$vo.son_count}</span>
+                    </notempty>
+                </a>
+                <notempty name="vo.son">
+                    <ul style="">
+                        <volist name="vo.son" id="v">
+                            <li id="accmenu_{$v.id}"><a href="{:U($v[name])}">{$v.title}</a> </li>
+                        </volist>
+                    </ul>
+                </notempty>
+            </li>
+        </volist>
+    </ul>
+</div>
+<!--sidebar-menu-->
+
+<!--main-container-part-->
+<div id="content">
+    <div class="container-fluid">
+        <block name="container"></block>
+    </div>
+</div>
+<!--end-main-container-part-->
+
+<!--Footer-part-->
+<div class="row-fluid">
+    <div id="footer" class="span12"></div>
+</div>
+<!--end-Footer-part-->
+
+</body>
+</html>

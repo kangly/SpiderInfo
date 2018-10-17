@@ -1,0 +1,162 @@
+
+<style type="text/css">
+    .add_new_rule{margin: 0 0 5px 0;}
+    #search_user_group_id{margin-top: 10px;}
+</style>
+
+<div class="add_new_rule">
+    <select class="span2" id="search_user_group_id" onchange="load_user_list()">
+        <option value="">所有用户组</option>
+        <volist name="all_user_groups" id="vo">
+            <option value="{$vo.id}" <eq name="vo.id" value="$gid">selected</eq>>{$vo.title}</option>
+        </volist>
+    </select>
+    &nbsp;
+    <a class="btn btn-success" onclick="edit_user(0)">添加用户</a>
+</div>
+
+<div class="add_new_rule">
+    <a class="btn btn-success btn-mini" onclick="set_user_status(1)">启用</a>
+    &nbsp;
+    <a class="btn btn-mini btn-danger" onclick="set_user_status(0)">禁用</a>
+</div>
+
+<table class="table table-bordered table-striped list manage_rule">
+    <thead>
+    <tr>
+        <th width="10">
+            <input type="checkbox" onclick="sel_all_user(this)">
+        </th>
+        <th>用户名</th>
+        <th>昵称</th>
+        <th width="80">注册时间</th>
+        <th width="80">最后登录ip</th>
+        <th width="80">最后登录时间</th>
+        <th width="30">状态</th>
+        <th width="100">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <volist name="users" id="vo">
+        <tr id="user_list_{$vo.id}" class="user_ids">
+            <td><input type="checkbox" value="{$vo.id}" name="user_id"></td>
+            <td class="<eq name='vo.status' value='0'>red1</eq>">{$vo.username}</td>
+            <td>{$vo.nickname}</td>
+            <td>{$vo.register_time}</td>
+            <td>{$vo.last_login_ip}</td>
+            <td>{$vo.last_login_time}</td>
+            <td><gt name="vo.status" value="0">正常<else/>禁用</gt></td>
+            <td>
+                <a class="btn-link" onclick="set_user_role('{$vo.id}')">设置角色</a>
+                <gt name="vo.status" value="0">
+                    <a class="btn-link" onclick="set_user_status(0,'{$vo.id}')">禁用</a>
+                    <else/>
+                    <a class="btn-link" onclick="set_user_status(1,'{$vo.id}')">启用</a>
+                </gt>
+                <a class="btn-link" onclick="edit_user('{$vo.id}')">编辑</a>
+                <a class="btn-link" onclick="delete_user('{$vo.id}')">删除</a>
+            </td>
+        </tr>
+    </volist>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+
+    function sel_all_user(obj){
+        if($(obj).is(':checked')){
+            $('.user_ids input[name="user_id"]').attr("checked",true);
+        }else{
+            $('.user_ids input[name="user_id"]').attr("checked",false);
+        }
+    }
+
+    function edit_user(id){
+        var data = {};
+        data.id = id;
+        var url = "{:U('home/setting/edit_user')}";
+        _add_moveable_popup('edit_user','编辑用户',url,data,{width:500,height:300},{finishwork:function(){
+            load_user_list();
+        }});
+    }
+
+    function load_user_list(){
+        var data = {};
+        data.gid = $('#search_user_group_id').val();
+        _p_a_load("{:U('home/setting/user_list')}",'tab1',false,data);
+    }
+
+    function delete_user(id){
+        if(!confirm('确认删除吗?')){
+            return;
+        }
+        if(op_start()){
+            $.ajax({
+                dataType: "text",
+                type: "POST",
+                url: "{:U('home/setting/delete_user')}",
+                data: {id:id},
+                success: function (res){
+                    if(res>0){
+                        tip_success('删除成功');
+                        $('#user_list_'+id).remove();
+                    }else{
+                        tip_error('删除失败',5);
+                    }
+                }
+            }).always(function(){
+                op_end();
+            });
+        }
+    }
+
+    function set_user_role(id){
+        var data = {};
+        data.id = id;
+        var url = "{:U('home/setting/set_user_role')}";
+        _add_moveable_popup('set_user_role','设置用户角色',url,data,{width:600,height:150});
+    }
+
+    function set_user_status(status,user_id){
+        var target_id = '';
+        if(user_id){
+            target_id = user_id;
+        }else{
+            $('.user_ids input[name="user_id"]:checked').each(function(){
+                target_id += ',' + $(this).val();
+            });
+            if(target_id==''){
+                tip_error('请选择用户');
+                return;
+            }else{
+                target_id = target_id.substring(1);
+            }
+        }
+
+        if(!confirm('确认此操作吗?')){
+            return;
+        }
+
+        if(op_start()){
+            $.ajax({
+                dataType: "text",
+                type: "POST",
+                url: "{:U('home/setting/set_user_status')}",
+                data: {target_id:target_id,status:status},
+                success: function (res){
+                    if(res=='success'){
+                        tip_success('操作成功');
+                        load_user_list();
+                    }else if(res){
+                        tip_error(res,5);
+                    }else{
+                        tip_error('操作失败',5);
+                    }
+                }
+            }).always(function(){
+                op_end();
+            });
+        }
+    }
+
+</script>

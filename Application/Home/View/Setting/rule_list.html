@@ -1,0 +1,80 @@
+
+<style type="text/css">
+    table.manage_rule td:first-child {text-align:left;}
+    .add_new_rule{margin: 0 0 10px 0;}
+</style>
+
+<div class="add_new_rule">
+    <a class="btn btn-success" onclick="edit_rule(0,0)">添加权限</a>
+</div>
+
+<table class="table table-bordered table-striped list manage_rule">
+    <thead>
+    <tr>
+        <th>规则名称</th>
+        <th>规则标识</th>
+        <th width="50">状态</th>
+        <th width="50">菜单</th>
+        <th width="50">排序</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <volist name="menu_rules" id="vo">
+        <tr id="rule_list_{$vo.id}">
+            <td><neq name="vo.limiter" value="">{$vo.limiter}└─</neq> {$vo.title}</td>
+            <td>{$vo.name}</td>
+            <td><eq name="vo.status" value="1">正常<else/>禁用</eq></td>
+            <td><eq name="vo.is_menu" value="1">是<else/>否</eq></td>
+            <td>{$vo.order_num}</td>
+            <td>
+                <a class="btn-link" onclick="edit_rule('{$vo.id}',1)">添加子权限</a>
+                <a class="btn-link" onclick="edit_rule('{$vo.id}',0)">编辑</a>
+                <a class="btn-link" onclick="delete_rule('{$vo.id}')">删除</a>
+            </td>
+        </tr>
+    </volist>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+
+    function edit_rule(id,is_add_son){
+        var data = {};
+        data.id = id;
+        data.is_add_son = is_add_son;
+        var url = "{:U('home/setting/edit_rule')}";
+        _add_moveable_popup('edit_rule','编辑权限',url,data,{width:500,height:300},{finishwork:function(){
+            load_rule_list();
+        }});
+    }
+
+    function load_rule_list(){
+        _p_a_load("{:U('home/setting/rule_list')}",'tab1');
+    }
+
+    function delete_rule(id){
+        if(!confirm('确认删除吗?')){
+            return;
+        }
+        if(op_start()){
+            $.ajax({
+                dataType: "text",
+                type: "POST",
+                url: "{:U('home/setting/delete_rule')}",
+                data: {id:id},
+                success: function (res){
+                    if(res>0){
+                        tip_success('删除成功');
+                        $('#rule_list_'+id).remove();
+                    }else{
+                        tip_error('删除失败',5);
+                    }
+                }
+            }).always(function(){
+                op_end();
+            });
+        }
+    }
+
+</script>

@@ -1,0 +1,22 @@
+<extend name="Public:base" />
+<block name="path_title">采集任务</block>
+<block name="container">
+    <div class="widget-box" id="tab_bdmgr">
+        <div class="widget-content nopadding tabbable addable_tab" id="tab_content">
+            <div class="widget-title">
+                <ul id="myTab" class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#tab1" page="{:U('home/collect/task_list')}" onclick="_tab_load(this)">采集任务</a></li>
+                </ul>
+            </div>
+            <div id="tab_content_page" class="widget-content tab-content">
+                <div id="tab1" class="tab-pane active">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function(){
+            _load_tab_page_content();
+        });
+    </script>
+</block>

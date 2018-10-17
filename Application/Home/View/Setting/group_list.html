@@ -1,0 +1,91 @@
+
+<a class="btn btn-success" style="margin-bottom: 10px;" onclick="edit_group(0)">添加用户组</a>
+
+<table class="table table-bordered table-striped list" style="width: 450px;">
+    <thead>
+    <tr>
+        <th width="120">用户组</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <volist name="group" id="vo">
+        <tr id="group_list_{$vo.id}">
+            <td>{$vo.title}</td>
+            <td>
+                <a class="btn-link" onclick="edit_group('{$vo.id}')">编辑</a>
+                <a class="btn-link" onclick="delete_group('{$vo.id}')">删除</a>
+                <a class="btn-link" href="{:U('home/setting/user',['gid'=>$vo[id]])}">显示成员</a>
+                <a class="btn-link" onclick="add_group_user('{$vo.id}')">添加成员</a>
+                <a class="btn-link" href="{:U('home/setting/set_group_access',['id'=>$vo[id]])}">设置权限</a>
+                <!--<eq name="vo.id" value="1">
+                    禁止操作超级管理员
+                    <else/>
+                    <a class="btn-link" onclick="edit_group('{$vo.id}')">编辑</a>
+                    <a class="btn-link" onclick="delete_group('{$vo.id}')">删除</a>
+                    <a class="btn-link" href="{:U('home/setting/user',['gid'=>$vo[id]])}">显示成员</a>
+                    <a class="btn-link" onclick="add_group_user('{$vo.id}')">添加成员</a>
+                    <a class="btn-link" href="{:U('home/setting/set_group_access',['id'=>$vo[id]])}">设置权限</a>
+                </eq>-->
+            </td>
+        </tr>
+    </volist>
+    </tbody>
+</table>
+
+<script type="text/javascript">
+
+    function edit_group(id){
+        var data = {};
+        data.id = id;
+        var url = "{:U('home/setting/edit_group')}";
+        _add_moveable_popup('edit_group','编辑用户组',url,data,{width:500,height:200},{finishwork:function(){
+            load_group_list();
+        }});
+    }
+
+    function load_group_list(){
+        _p_a_load("{:U('home/setting/group_list')}",'tab1');
+    }
+
+    function delete_group(id){
+        if(!confirm('确认删除吗?')){
+            return;
+        }
+        if(op_start()){
+            $.ajax({
+                dataType: "text",
+                type: "POST",
+                url: "{:U('home/setting/delete_group')}",
+                data: {id:id},
+                success: function (res){
+                    if(res>0){
+                        tip_success('删除成功');
+                        $('#group_list_'+id).remove();
+                    }else if(res){
+                        tip_error(res,5);
+                    }else{
+                        tip_error('删除失败',5);
+                    }
+                }
+            }).always(function(){
+                op_end();
+            });
+        }
+    }
+
+    function add_group_user(id){
+        var data = {};
+        data.id = id;
+        var url = "{:U('home/setting/add_group_user')}";
+        _add_moveable_popup('add_group_user','添加用户组成员',url,data,{width:400,height:100});
+    }
+
+    function set_group_access(id){
+        var data = {};
+        data.id = id;
+        var url = "{:U('home/setting/set_group_access')}";
+        _add_moveable_popup('set_group_access','设置用户组权限',url,data,{width:500,height:200});
+    }
+
+</script>
