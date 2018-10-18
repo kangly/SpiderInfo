@@ -25,6 +25,7 @@ function comm_check(field){
     else
         return true;
 }
+
 //通用提交
 function submitform(field,debug,callback,url){
     submittheform('form1',field,callback,url);
@@ -446,7 +447,7 @@ function loadKeyData(pid,selectObjId,defaultVal,callback)
     $.ajax({
         dataType:"json",
         type: "GET",
-        url: '/cmb/index.php?m=home&c=collect&a=load_key_data',//固定访问地址和格式
+        url: '/home/collect/load_key_data',//固定访问地址和格式
         data: load_params,
         success: function(json){
             var obj = $("#"+selectObjId);
@@ -483,7 +484,7 @@ function loadCategory(module_id,pid,selectObjId,defaultVal,callback)
     $.ajax({
         dataType:"json",
         type: "GET",
-        url: '/cmb/index.php?m=home&c=collect&a=load_module_category',//固定访问地址和格式
+        url: '/home/collect/load_module_category',//固定访问地址和格式
         data: load_params,
         success: function(json){
             var obj = $('#'+selectObjId);
