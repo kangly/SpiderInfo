@@ -10,19 +10,20 @@ namespace Home\Controller;
 
 class SettingController extends HomebaseController
 {
-    public function index()
-    {
+    public function index(){
+
         $this->display();
     }
 
-    //权限管理start
-    public function rule()
-    {
+    //权限管理
+
+    public function rule(){
+
         $this->display();
     }
 
-    public function rule_list()
-    {
+    public function rule_list(){
+
         $menu_rules = $this->get_rules();
         $menu_rules_tree = tree_to_level($menu_rules);
 
@@ -31,8 +32,8 @@ class SettingController extends HomebaseController
         $this->display();
     }
 
-    public function edit_rule()
-    {
+    public function edit_rule(){
+
         $id = I('id');
 
         if($id>0)
@@ -64,8 +65,8 @@ class SettingController extends HomebaseController
         $this->display();
     }
 
-    public function save_rule()
-    {
+    public function save_rule(){
+
         $name = trim(I('name'));
         $title = trim(I('title'));
 
@@ -96,8 +97,8 @@ class SettingController extends HomebaseController
         }
     }
 
-    public function delete_rule()
-    {
+    public function delete_rule(){
+
         $id = I('id');
 
         if($id>0)
@@ -107,16 +108,17 @@ class SettingController extends HomebaseController
             echo $id;
         }
     }
-    //权限管理end
 
-    //用户组管理start
-    public function group()
-    {
+
+    //用户组管理
+
+    public function group(){
+
         $this->display();
     }
 
-    public function group_list()
-    {
+    public function group_list(){
+
         $map = [];
 
         $group = M('auth_group')
@@ -128,8 +130,8 @@ class SettingController extends HomebaseController
         $this->display();
     }
 
-    public function edit_group()
-    {
+    public function edit_group(){
+
         $id = I('id');
 
         if($id>0)
@@ -148,8 +150,8 @@ class SettingController extends HomebaseController
         $this->display();
     }
 
-    public function save_group()
-    {
+    public function save_group(){
+
         $title = trim(I('title'));
 
         if($title)
@@ -175,8 +177,8 @@ class SettingController extends HomebaseController
         }
     }
 
-    public function delete_group()
-    {
+    public function delete_group(){
+
         $id = I('id');
 
         if($id>0)
@@ -187,16 +189,16 @@ class SettingController extends HomebaseController
         }
     }
 
-    public function add_group_user()
-    {
+    public function add_group_user(){
+
         $id = I('id');
         $this->assign('group_id',$id);
 
         $this->display();
     }
 
-    public function save_group_user()
-    {
+    public function save_group_user(){
+
         $user_id = I('user_id');
         $group_id = I('group_id');
 
@@ -221,8 +223,8 @@ class SettingController extends HomebaseController
         }
     }
 
-    public function set_group_access()
-    {
+    public function set_group_access(){
+
         $id = I('id');
 
         if($id>0)
@@ -239,8 +241,8 @@ class SettingController extends HomebaseController
         $this->display();
     }
 
-    public function save_group_access()
-    {
+    public function save_group_access(){
+
         $group_id = I('id');
         $target_id  = I('target_id');
 
@@ -251,11 +253,12 @@ class SettingController extends HomebaseController
             echo $group_id;
         }
     }
-    //用户组管理end
 
-    //用户管理start
-    public function user()
-    {
+
+    //用户管理
+
+    public function user(){
+
         //用户组
         $gid = I('gid');
         $this->assign('gid',$gid);
@@ -263,8 +266,8 @@ class SettingController extends HomebaseController
         $this->display();
     }
 
-    public function user_list()
-    {
+    public function user_list(){
+
         $gid = I('gid');
         $this->assign('gid',$gid);
 
@@ -289,8 +292,8 @@ class SettingController extends HomebaseController
         $this->display();
     }
 
-    public function edit_user()
-    {
+    public function edit_user(){
+
         $id = I('id');
 
         if($id>0)
@@ -303,8 +306,8 @@ class SettingController extends HomebaseController
         $this->display();
     }
 
-    public function save_user()
-    {
+    public function save_user(){
+
         $user_id = I('user_id');
         $username = I('username');
 
@@ -391,8 +394,8 @@ class SettingController extends HomebaseController
         }
     }
 
-    public function delete_user()
-    {
+    public function delete_user(){
+
         $id = I('id');
 
         if($id>0)
@@ -403,8 +406,8 @@ class SettingController extends HomebaseController
         }
     }
 
-    public function set_user_role()
-    {
+    public function set_user_role(){
+
         $id = I('id');
         $this->assign('id',$id);
 
@@ -424,8 +427,8 @@ class SettingController extends HomebaseController
         $this->display();
     }
 
-    public function save_user_role()
-    {
+    public function save_user_role(){
+
         $id = I('id');
         $target_id  = I('target_id');
 
@@ -451,8 +454,8 @@ class SettingController extends HomebaseController
         }
     }
 
-    public function set_user_status()
-    {
+    public function set_user_status(){
+
         $target_id = I('target_id');
         $status = I('status');
 
@@ -475,5 +478,4 @@ class SettingController extends HomebaseController
             }
         }
     }
-    //用户管理end
 }

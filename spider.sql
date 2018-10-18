@@ -577,7 +577,6 @@ CREATE TABLE `destoon_collect_data` (
   `item_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '转换对应itemid',
   `change_admin_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '转换操作人id',
   `change_admin_name` varchar(50) DEFAULT NULL COMMENT '转换操作人姓名',
-  `pub_time` date DEFAULT NULL COMMENT '采集信息的发布时间',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `contact_address` varchar(100) DEFAULT NULL COMMENT '联系地址',
   PRIMARY KEY (`id`),

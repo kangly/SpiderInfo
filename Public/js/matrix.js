@@ -48,6 +48,38 @@ $(document).ready(function(){
 			ul.slideDown(250);
 		}
 	});
+
+
+
+
+
+	//start new menu 状态
+	/*
+	$('#sidebar li').click(function(){
+		$('#sidebar li').removeClass('active');
+		$(this).addClass('active')
+		var menu_index = $('#sidebar li').index(this);
+	});
+
+	var current_url = location.href;
+	$('#sidebar li a').each(function(){
+		var menu_url = $(this).attr('href');
+		if(current_url.indexOf(menu_url)!=-1){
+			var actmenu = $(this).parent();
+			if (actmenu.parent().parent().hasClass('submenu')){
+				actmenu.parent().parent().addClass('open active');
+				actmenu.addClass('active');
+			}
+			else{
+				actmenu.addClass('active');
+			}
+		}
+	});*/
+	//end new menu 状态
+
+
+
+
 	
 	// === Resize window related === //
 	$(window).resize(function()
@@ -119,4 +151,45 @@ $(document).ready(function(){
 		$(this).toggleClass('icon-arrow-left');
 		$(this).toggleClass('icon-arrow-right');
 	});
+
+	/*
+	$('#style-switcher a').click(function()
+	{
+		var style = $(this).attr('href').replace('#','');
+		$('.skin-color').attr('href','css/maruti.'+style+'.css');
+		$(this).siblings('a').css({'border-color':'transparent'});
+		$(this).css({'border-color':'#aaaaaa'});
+	});
+	
+	$('.lightbox_trigger').click(function(e) {
+		
+		e.preventDefault();
+		
+		var image_href = $(this).attr("href");
+		
+		if ($('#lightbox').length > 0) {
+			
+			$('#imgbox').html('<img src="' + image_href + '" /><p><i class="icon-remove icon-white"></i></p>');
+		   	
+			$('#lightbox').slideDown(500);
+		}
+		
+		else { 
+			var lightbox = 
+			'<div id="lightbox" style="display:none;">' +
+				'<div id="imgbox"><img src="' + image_href +'" />' + 
+					'<p><i class="icon-remove icon-white"></i></p>' +
+				'</div>' +	
+			'</div>';
+				
+			$('body').append(lightbox);
+			$('#lightbox').slideDown(500);
+		}
+		
+	});
+	
+	$('#lightbox').live('click', function() {
+		$('#lightbox').hide(200);
+	});*/
+	
 });

@@ -9,7 +9,7 @@
 
     <input type="text" id="keyword" class="span3" value="{$Think.get.keyword}{$Think.post.keyword}" placeholder="标题">
 
-    <select id="curl_source" name="curl_source" onchange="load_collect()">
+	<select id="curl_source" name="curl_source" onchange="load_collect()">
         <option value="0">采集来源</option>
         <volist name="task_list" id="vo">
             <option value="{$vo.pid}" <eq name="vo.pid" value="$pid">selected</eq>>{$vo.title}</option>
@@ -19,9 +19,13 @@
     <a class="btn btn-success" onclick="load_collect()">搜索</a>
 </div>
 
+<a class="btn btn-danger btn-mini" onclick="delete_all_collect()" style="margin-bottom: 5px;">删除</a>
 <table class="table table-bordered table-striped table-condensed list">
     <thead>
     <tr>
+      	<th width="10">
+            <input type="checkbox" onclick="sel_all_collect(this)" />
+        </th>
         <th>标题</th>
         <th width="90">省市</th>
         <lt name="pid" value="23">
@@ -29,15 +33,18 @@
             <th width="110">联系人电话</th>
         </lt>
         <th width="100">创建时间</th>
+        <th width="50">操作</th>
     </tr>
     </thead>
     <tbody>
     <volist name="data_list" id="vo">
         <tr id="data_list_{$vo.id}">
+          	<td>
+                <input type="checkbox" name="sel_info_id" value="{$vo.id}">
+            </td>
             <td>
                 {$vo.title}
                 <small><a class="btn-link" href="{$vo.url}" target="_blank">原</a></small>
-              	<small><a class="btn-link" onclick="edit_collect('{$vo.id}','{$vo.module_id}')">查看</a></small>
             </td>
             <td>{$vo.city}</td>
             <lt name="pid" value="23">
@@ -60,6 +67,12 @@
             </td>
             </lt>
             <td><small>{$vo.create_time}</small></td>
+            <td>
+                <eq name="vo.is_change" value="0">
+                    <a class="btn-link" onclick="edit_collect('{$vo.id}','{$vo.module_id}')">编辑</a>
+                    <a class="btn-link red1" onclick="delete_collect('{$vo.id}')">删</a>
+                </eq>
+            </td>
         </tr>
     </volist>
     </tbody>
@@ -67,12 +80,73 @@
 
 <div class="pagination in_tab">{$page}</div>
 
+<input type="hidden" id="curl_pid" value="{$pid}">
+
 <script type="text/javascript">
 
     $(function(){
         loadKeyData(0,'listarea1',$('#listarea1_name').val());
         _add_enter_event('keyword',load_collect);
     });
+  
+  	function sel_all_collect(obj){
+        if($(obj).prop("checked")){
+            $("input[name='sel_info_id']").each(function(){
+                $(this).attr("checked",true);
+            });
+        }else{
+            $("input[name='sel_info_id']").each(function(){
+                $(this).attr("checked",false);
+            });
+        }
+    }
+
+    function delete_all_collect(){
+        var info_id = '';
+        $("input[name='sel_info_id']").each(function(i){
+            if($(this).prop("checked")){
+                info_id += $(this).val()+",";
+            }
+        });
+        info_id = info_id.substr(0,info_id.length-1);
+        if(info_id==''){
+            tip_error('请先选择要删除的数据！',5);
+            return;
+        }
+
+        if(!confirm('确认删除吗?')){
+            return;
+        }
+
+        if(op_start()){
+            $.ajax({
+                dataType: "text",
+                type: "POST",
+                url: "{:U('home/collect/delete_all_collect')}",
+                data: {id:info_id},
+                success: function (res){
+                    if(res>0){
+                        tip_success('删除成功!');
+                        load_collect();
+                    }else{
+                        tip_error('删除失败!',5);
+                    }
+                }
+            }).always(function(){
+                op_end();
+            });
+        }
+    }
+
+    function edit_collect(id,mid){
+        var data = {};
+        data.id = id;
+      	data.mid = mid;
+        var url = "{:U('home/collect/edit_collect')}";
+        _add_moveable_popup('collect_moveable','编辑信息',url,data,{width:980,height:550,top:50,right:150},{finishwork:function(){
+            load_collect();
+        }});
+    }
 
     function load_collect(){
         var data = {};
@@ -89,15 +163,29 @@
         }
         _p_a_load(url,'tab1',false,data);
     }
-  
-  	function edit_collect(id,mid){
-        var data = {};
-        data.id = id;
-        data.mid = mid;
-        var url = "{:U('home/collect/edit_collect')}";
-        _add_moveable_popup('collect_moveable','查看信息',url,data,{width:1000,height:600,top:50,right:150},{finishwork:function(){
-            load_collect();
-        }});
+
+    function delete_collect(id){
+        if(!confirm('确认删除吗?')){
+            return;
+        }
+        if(op_start()){
+            $.ajax({
+                dataType: "text",
+                type: "POST",
+                url: "{:U('home/collect/delete_collect')}",
+                data: {id:id},
+                success: function (res){
+                    if(res>0){
+                        tip_success('删除成功!');
+                        $('#data_list_'+id).remove();
+                    }else{
+                        tip_error('删除失败!',5);
+                    }
+                }
+            }).always(function(){
+                op_end();
+            });
+        }
     }
 
 </script>

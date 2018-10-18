@@ -3,14 +3,14 @@ namespace Home\Controller;
 
 class IndexController extends HomebaseController {
 
-    public function index()
-    {
+    public function index(){
+
         $this->display();
     }
 
     //个人信息
-    public function user_info()
-    {
+    public function user_info(){
+
         $user = M('user')
             ->field('*')
             ->where(['id'=>$this->userInfo['id']])
@@ -22,14 +22,14 @@ class IndexController extends HomebaseController {
     }
 
     //修改密码
-    public function edit_password()
-    {
+    public function edit_password(){
+
         $this->display();
     }
 
     //保存密码
-    public function save_password()
-    {
+    public function save_password(){
+
         $ori_password = I('ori_password');
         $new_password = I('new_password');
         $confirm_password = I('confirm_password');
@@ -59,8 +59,8 @@ class IndexController extends HomebaseController {
     }
 
     //修改昵称
-    public function edit_nickname()
-    {
+    public function edit_nickname(){
+
         $user = M('user')->field('nickname')->where(['id'=>$this->userInfo['id']])->find();
         $this->assign('user',$user);
 
@@ -68,8 +68,8 @@ class IndexController extends HomebaseController {
     }
 
     //保存昵称
-    public function save_nickname()
-    {
+    public function save_nickname(){
+
         $password = I('password');
         $nickname = I('nickname');
 

@@ -1014,6 +1014,7 @@ function _show_page_error(title,text,time){
 	});
 }
 
+
 var _ready_to_paste = 0;
 //添加input事件，只允许输入整数和小数
 function _pad_addInputCheckNumEvent(obj,onlyInteger){
@@ -1331,7 +1332,6 @@ function _pad_bind_div_text_limit_event(txtObj, hiddenObj, lengthLimit, callBack
 
 	_pad_div_text_limit_check(txtObj);
 }
-
 function _pad_div_text_limit_check(txtObj){
 	var maxLimit = txtObj.attr('maxlength');
 	var hiddenObjId = txtObj.attr('hidden-obj-id');

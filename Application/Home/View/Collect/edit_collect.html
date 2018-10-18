@@ -10,7 +10,9 @@
 
     <div class="control-group">
         <label class="control-label"><span class="red1">*</span>标题:</label>
-        <div class="controls" style="margin-top: 2px;">{$edit.title}</div>
+        <div class="controls">
+            <input class="span5" id="collect_title" type="text" value="{$edit.title}">
+        </div>
     </div>
 
     <neq name="mid" value="27">
@@ -41,7 +43,7 @@
             <select class="span2" id="area2" name="area2"></select>
             <input type="hidden" id="area1_name" name="area1_name" value="{$edit.area1}" />
             <input type="hidden" id="area2_name" name="area2_name" value="{$edit.area2}" />
-            <neq name="edit.contact_address" value="">
+          	<neq name="edit.contact_address" value="">
                 <small class="red1">参考: {$edit.contact_address}</small>
             </neq>
         </div>
@@ -59,7 +61,7 @@
     </div>
 
     <eq name="mid" value="27">
-        <div class="control-group">
+      	<div class="control-group">
             <label class="control-label">图片:</label>
             <div class="controls">
                 <small class="red1">如果存在图片,会在此处显示,点击可查看</small>
@@ -71,12 +73,12 @@
                                 <a href="__ROOT__{$vo.img}" target="_blank" title="点击查看"><img src="__ROOT__{$vo.img}"></a>
                             </div>
                         </td>
-                        <php>if($i%6 == 0){echo '</tr>';}</php>
+                        <php>if($i%7 == 0){echo '</tr>';}</php>
                     </volist>
                 </table>
             </div>
         </div>
-
+      	
         <div class="control-group">
             <label class="control-label">附件:</label>
             <div class="controls">
@@ -117,8 +119,77 @@
 
 </form>
 
+<div class="form-actions pop_win_buttons">
+    <a class="btn btn-success" onclick="save_collect()">保存</a>
+</div>
+
 <script type="text/javascript">
+
     $(function(){
         loadKeyData(0,'area1',$('#area1_name').val());
     });
+
+    function save_collect(){
+
+        var data = {};
+
+        data.title = _trim_assign($('#collect_title'));
+        if(data.title==''){
+            tip_error('标题必填!',5);
+            return;
+        }
+      
+      	data.mid = $('#collect_mid').val();
+        if(data.mid!=27)
+        {
+            data.contact = _trim_assign($('#contact'));
+            if(data.contact==''){
+                tip_error('联系人必填!',5);
+                return;
+            }
+
+            data.phone = _trim_assign($('#phone'));
+            if(data.phone==''){
+                tip_error('联系人电话必填!',5);
+                return;
+            }
+        }
+
+        var area2 = $('#area2').val();
+        if(area2){
+            data.area_id = area2;
+        }else{
+            data.area_id = $('#area1').val();
+        }
+
+        data.id = $('#collect_id').val();
+        data.content = ue_collect_content.getContent();
+        if($.trim(data.content)==''){
+            tip_error('描述必填!',5);
+            return;
+        }
+
+        if(op_start()){
+            $.ajax({
+                dataType: "text",
+                type: "POST",
+                url: "{:U('home/collect/save_collect')}",
+                data: data,
+                success: function (ret){
+                    if(ret=='success'){
+                        tip_success('操作成功!');
+                        if(_ma_pop_callback['{$Think.post.moveable_pop_mark}']){
+                            _ma_pop_callback['{$Think.post.moveable_pop_mark}']();
+                            _close_moveable_popup();
+                        }
+                    }else{
+                        tip_error('操作失败',5);
+                    }
+                }
+            }).always(function(){
+                op_end();
+            });
+        }
+    }
+
 </script>

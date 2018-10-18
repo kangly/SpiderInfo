@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>二手设备共赢网数据采集任务后台管理</title>
+    <title>二手设备共赢网数据采集后台管理</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/2.3.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/3.0.2/css/font-awesome.min.css" />
     <link rel="stylesheet" href="__PUBLIC__/css/merge.sundry.css" />
-    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="https://cdn.bootcss.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="https://cdn.bootcss.com/draggabilly/2.1.0/draggabilly.pkgd.min.js"></script>
-    <script type="text/javascript" src="__PUBLIC__/js/jquery.gritter.min.js"></script>
-    <script type="text/javascript" src="__PUBLIC__/js/common.js"></script>
+  	<link rel="stylesheet" href="__PUBLIC__/css/common.css" />
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="__PUBLIC__/js/matrix.js"></script>
+    <script src="__PUBLIC__/js/jquery.gritter.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery-validate/1.9.0/jquery.validate.min.js"></script>
+    <script src="__PUBLIC__/js/matrix.form_validation.js"></script>
+    <script src="https://cdn.bootcss.com/Uniform.js/2.2.2/jquery.uniform.min.js"></script>
+    <script src="https://cdn.bootcss.com/select2/3.2/select2.min.js"></script>
+    <script src="__PUBLIC__/js/matrix.popover.js"></script>
+    <script src="https://cdn.bootcss.com/datatables/1.9.4/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery.form/4.2.2/jquery.form.min.js"></script>
+    <script src="__PUBLIC__/js/inc_tab_page.js"></script>
+    <script src="__PUBLIC__/js/pad_all.js"></script>
+    <script src="https://cdn.bootcss.com/draggabilly/2.1.0/draggabilly.pkgd.min.js"></script>
+    <script src="__PUBLIC__/js/common.js"></script>
     <script type="text/javascript" charset="utf-8" src="__PUBLIC__/ueditor/ueditor.config.js"></script>
     <script type="text/javascript" charset="utf-8" src="__PUBLIC__/ueditor/ueditor.all.js"> </script>
+    <!--建议手动加在语言，避免在ie下有时因为加载语言失败导致编辑器加载失败-->
+    <!--这里加载的语言文件会覆盖你在配置项目里添加的语言类型，比如你在配置项目里配置的是英文，这里加载的中文，那最后就是中文-->
     <script type="text/javascript" charset="utf-8" src="__PUBLIC__/ueditor/lang/zh-cn/zh-cn.js"></script>
     <script type="text/javascript">
         $(function(){
@@ -36,16 +49,21 @@
                 }
             });
             $('#open_new_win').attr('href',location.href);
-            load_user_list();
         });
 
-        var _url = '__URL__';
-        var sformback = function(url){
-            if(url)
-                setTimeout("location.href = '"+ url + "'", 500);
-            else
-                setTimeout("location.href = '"+ _url + "'", 500);
-        };
+        function goPage (newURL) {
+            if (newURL != "") {
+                if (newURL == "-" ){
+                    resetMenu();
+                }else{
+                    document.location.href = newURL;
+                }
+            }
+        }
+
+        function resetMenu() {
+            document.gomenu.selector.selectedIndex = 2;
+        }
 
         var _base_user_id_arr = new Array();
         var _base_username_arr = new Array();
@@ -65,6 +83,7 @@
                 }
             });
         }
+        load_user_list();
 
         function _bind_typeahead_user(id,aftercallback){
             var obj = $('#'+id);
@@ -88,6 +107,7 @@
                     }
                 }
             });
+
             obj.blur(function(event){
                 var admin_name = $(this).val();
                 if(admin_name!=''){
@@ -103,7 +123,8 @@
                 }
             });
         }
-
+    </script>
+    <script type="text/javascript">
         var _ma_pop_idx = 1;
         var _ma_pop_callback = new Object();
         var _ma_pop_callback_beforeclose = new Object();
@@ -170,6 +191,7 @@
             }
 
             mapop.resizable();
+
             mapop.delegate('.close_btn','click',function(){
                 _close_moveable_popup($(this).attr('ma_mark'));
             });
@@ -180,13 +202,19 @@
             if(url)
             {
                 mp_data = _pad_mergeJsonObject(mp_data,content);
+
                 _pad_all_loadPage(url,ma_content_id,true,mp_data,function(){
+
                     _ma_check_button(mapop);
+
                     mapop.show();
+
                     _reposition_moveable_pop(mapop,position);
+
                     if(callback.afterinit){
                         callback.afterinit(ma_id,ma_content_id);
                     }
+
                     _hide_top_loading();
                 });
             }
@@ -195,10 +223,13 @@
                 content_obj.html(content);
                 _reposition_moveable_pop(mapop,position);
                 _ma_check_button(mapop);
+
                 mapop.show();
+
                 if(callback.afterinit){
                     callback.afterinit(ma_id,ma_content_id);
                 }
+
                 _hide_top_loading();
             }
 
@@ -212,15 +243,20 @@
         function _ma_check_button(mapop){
             var button_old = mapop.find('.pop_win_buttons:first');
             var button_new = mapop.find('.button_here:first');
+
             var fixed_buttons = button_new.find('.ma_fixed_button');
+
             var fixed_btn_group = $('<span class="ma_fixed_button_group"></span>');
             fixed_buttons.each(function(){
                 fixed_btn_group.append($(this));
             });
 
             var close_btn = $('<a class="btn close_btn">关闭</a>');
+
             close_btn.attr('ma_mark', mapop.attr('identity'));
+
             if(button_old.length>0){
+
                 button_new.html('');
                 button_new.append(fixed_btn_group);
                 button_new.append(button_old.html());
@@ -237,7 +273,9 @@
             if(!title){
                 title = '';
             }
-            if(ma_mark && $('.moveable_popup_win[identity="'+ma_mark+'"]').length>0){
+
+            if(ma_mark && $('.moveable_popup_win[identity="'+ma_mark+'"]').length>0)
+            {
                 _pad_all_reloadPage($('.moveable_popup_win[identity="'+ma_mark+'"]').find('.content_here:first').attr('id'),more_parems, function(){
                     _ma_check_button($('.moveable_popup_win[identity="'+ma_mark+'"]'));
                 });
@@ -314,10 +352,13 @@
             }
         }
 
-        function _close_moveable_popup(ma_mark){
-            if(_ma_pop_callback_beforeclose[ma_mark]){
+        function _close_moveable_popup(ma_mark)
+        {
+            if(_ma_pop_callback_beforeclose[ma_mark])
+            {
                 _ma_pop_callback_beforeclose[ma_mark](ma_mark);
             }
+
             if(ma_mark && $('.moveable_popup_win[identity="'+ma_mark+'"]').length>0){
                 $('.moveable_popup_win[identity="'+ma_mark+'"]').remove();
                 _ma_pop_callback[ma_mark] = null;
@@ -331,6 +372,7 @@
         $(function(){
             $(document).delegate('.any_focus_pop','click',function(){
                 var time_after = new Date().getTime() - _mp_last_focus_shift_time_millsec;
+
                 //限制在新弹层后2秒内部能切换焦点，否则有时从层点击弹新层会切换回来
                 if(time_after > 2000){
                     $('.my_focus_pop').removeClass('my_focus_pop');
@@ -344,7 +386,7 @@
 
 <!--Header-part-->
 <div id="header">
-    <h1>二手设备共赢网数据采集任务后台管理</h1>
+    <h1>二手设备共赢网数据采集后台管理</h1>
 </div>
 <!--close-Header-part-->
 
@@ -385,9 +427,11 @@
 
 <!--main-container-part-->
 <div id="content">
+    <!--start-->
     <div class="container-fluid">
         <block name="container"></block>
     </div>
+    <!--end-->
 </div>
 <!--end-main-container-part-->
 
@@ -396,6 +440,5 @@
     <div id="footer" class="span12"></div>
 </div>
 <!--end-Footer-part-->
-
 </body>
 </html>

@@ -11,8 +11,8 @@ use Think\Controller;
 
 class LoginController extends Controller
 {
-    public function index()
-    {
+    public function index(){
+
         $this->assign('__PUBLIC__',__ROOT__.'/Public');
 
         if(session('admin')){
@@ -23,8 +23,8 @@ class LoginController extends Controller
     }
 
     //登录验证
-    public function login()
-    {
+    public function login(){
+
         $username = I('post.username');
         $password = I('post.password');
 
@@ -78,8 +78,7 @@ class LoginController extends Controller
     }
 
     //退出系统
-    public function login_out()
-    {
+    public function login_out(){
         session(null);
         session_destroy();
         $this->redirect('home/login/index');

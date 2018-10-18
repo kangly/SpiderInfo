@@ -13,13 +13,8 @@ class CollectController extends HomebaseController
     {
         $this->display();
     }
-
-    public function task()
-    {
-        $this->display();
-    }
-
-    public function task_list()
+  
+  	public function task_list()
     {
         $task = M('task_info')
             ->where(['is_enable'=>1])
@@ -30,25 +25,23 @@ class CollectController extends HomebaseController
         $this->display();
     }
 
-    //调用命令行,后台执行采集任务
     public function start_task()
     {
         $pid = I('pid');
       	$file = I('file');
+
         if($pid && $file)
         {
-            exec('cd /Users/kangly/Documents/test.php/Spider/run/;php curl'.$file.'.php >/dev/null &',$result);
+            exec('cd '.C('CMD_DIR').';php curl'.$file.'.php >/dev/null &',$result);
         }
 
         echo 'success';
     }
 
-    /**
-     * 结束后台采集任务
-     */
     public function end_task()
     {
         $pid = I('pid');
+
         if($pid)
         {
             M('task_info')->where(['pid'=>$pid])->save(['state'=>0]);
@@ -68,6 +61,7 @@ class CollectController extends HomebaseController
         $page_no = I('get.p',1);
 
         $map = [];
+
         $pid = I('pid',0);
         if($pid){
             $map['pid'] = $pid;
@@ -98,16 +92,16 @@ class CollectController extends HomebaseController
             ->count('a.id');
 
         $this->get_pager($count,$page_size,[
+          	'pid' => $pid,
             'keyword' => $keyword,
-            'pid' => $pid,
             'area1' => $area1,
             'area2' => $area2
         ]);
 
         $this->assign('data_list',$data_list);
         $this->assign('pid',$pid);
-
-        $task_list = M('task_info')
+      
+      	$task_list = M('task_info')
             ->where(['is_enable'=>1])
             ->select();
 
@@ -115,8 +109,8 @@ class CollectController extends HomebaseController
 
         $this->display();
     }
-  
-  	public function edit_collect()
+
+    public function edit_collect()
     {
         $id = I('id');
         $mid = I('mid');
@@ -124,8 +118,8 @@ class CollectController extends HomebaseController
         if($id>0)
         {
             $info = M('collect_data')->where(['id'=>$id])->find();
-
-            if($mid==27)
+          
+          	if($mid==27)
             {
                 $file_data = json_decode($info['file_data'],true);
                 $this->assign('file_data',$file_data);
@@ -134,8 +128,8 @@ class CollectController extends HomebaseController
             {
                 $info['content'] = strip_tags($info['content'],'<p>');
             }
-
-            $img_data = json_decode($info['img_data'],true);
+          
+          	$img_data = json_decode($info['img_data'],true);
             $this->assign('img_data',$img_data);
 
             if($info['area_id']>0)
@@ -158,9 +152,100 @@ class CollectController extends HomebaseController
             }
 
             $this->assign('edit',$info);
-            $this->assign('mid',$mid);
+          	$this->assign('mid',$mid);
         }
 
         $this->display();
+    }
+
+    public function save_collect()
+    {
+        $id = I('id');
+      	$mid = I('mid');
+        $title = I('title');
+        $contact = I('contact');
+        $phone = I('phone');
+        $content = htmlspecialchars_decode(I('content'));
+
+        if($id>0 && $title && $content && ($mid==27 || ($contact && $phone)))
+        {
+            $data = [
+                'title' => $title,
+                'area_id' => I('area_id',0),
+                'content' => $content
+            ];
+          
+          	if($mid!=27){
+                $data['contact'] = $contact;
+                $data['phone'] = $phone;
+            }
+
+            M('collect_data')->where(['id'=>$id])->save($data);
+
+            echo 'success';
+        }
+    }
+
+    public function delete_collect()
+    {
+        $id = I('id');
+
+        if($id>0)
+        {
+            $ori_info = M('collect_data')->field('img_data,file_data')->where(['id'=>$id])->find();
+          
+          	//删除图片
+            $ori_img_data = json_decode($ori_info['img_data'],true);
+            if($ori_img_data){
+                foreach($ori_img_data as $v){
+                    unlink('.'.$v['img']);
+                }
+            }
+          
+          	//删除附件
+            $ori_file_data = json_decode($ori_info['file_data'],true);
+            if($ori_file_data){
+                foreach($ori_file_data as $v){
+                    unlink('.'.$v['url']);
+                }
+            }
+
+            M('collect_data')->where(['id'=>$id])->delete();
+
+            echo $id;
+        }
+    }
+  
+  	public function delete_all_collect()
+    {
+        $ids = I('id');
+        if($ids)
+        {
+            $ids_data = explode(',',$ids);
+            foreach($ids_data as $id)
+            {
+                $ori_info = M('collect_data')->field('img_data,file_data')->where(['id'=>$id])->find();
+
+                //删除图片
+                $ori_img_data = json_decode($ori_info['img_data'],true);
+                if($ori_img_data){
+                    foreach($ori_img_data as $v){
+                        unlink('.'.$v['img']);
+                    }
+                }
+
+                //删除附件
+                $ori_file_data = json_decode($ori_info['file_data'],true);
+                if($ori_file_data){
+                    foreach($ori_file_data as $v){
+                        unlink('.'.$v['url']);
+                    }
+                }
+
+                M('collect_data')->where(['id'=>$id])->delete();
+            }
+
+            echo 200;
+        }
     }
 }
