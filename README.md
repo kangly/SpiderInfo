@@ -20,4 +20,4 @@ return array(
 );
 ```
 
-##### 后台地址：http://yourname/home/login/index.html，登录用户名：admin，登录密码：abcd1234
+##### 默认登录账号：admin，默认登录密码：abcd1234
