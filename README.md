@@ -5,7 +5,7 @@
 ```
 # 使用TP3.2.1框架开发，修改为你的配置信息
 return array(
-	//'配置项'=>'配置值'
+    //'配置项'=>'配置值'
     'DB_TYPE' => 'mysql',
     'DB_HOST' => '127.0.0.1',
     'DB_PORT'=>  '3306',
@@ -20,4 +20,4 @@ return array(
 );
 ```
 
-##### 默认登录用户名：admin，登录密码：abcd1234
+##### 后台地址：http://yourname/home/login/index.html，登录用户名：admin，登录密码：abcd1234
