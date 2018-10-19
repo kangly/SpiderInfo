@@ -1,5 +1,5 @@
 # SpiderInfo
-### PHP采集的web显示程序，数据依靠Spider获取，可以控制Spider进行采集。
+### PHP采集的web显示程序，数据依靠Spider获取，可以控制[Spider](https://github.com/kangly/Spider)进行采集。
 
 #### 修改config.php
 ```
@@ -20,4 +20,4 @@ return array(
 );
 ```
 
-##### 默认登录账号：admin，默认登录密码：abcd1234 [Spider](https://github.com/kangly/Spider)
+##### 默认登录账号：admin，默认登录密码：abcd1234
